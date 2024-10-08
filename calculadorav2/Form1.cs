@@ -44,12 +44,28 @@ namespace calculadorav2
             if (!timeToChange)
             {
                 timeToChange = true;
-                textBoxResultado.BackColor = Color.Red;
+                textBoxResultado.TextAlign = HorizontalAlignment.Center;
+                textBoxResultado.ForeColor = Color.White;
+                textBoxResultado.BackColor = Color.Blue;
             }
             else
             {
                 timeToChange = false;
-                textBoxResultado.BackColor = Color.LightGray;
+
+                Random rand = new Random();
+                int randomValue = rand.Next(1, 3);
+
+                switch (randomValue)
+                {
+                    case 1:
+                        textBoxResultado.ForeColor = Color.Gold;
+                        textBoxResultado.BackColor = Color.Green;
+                        break; 
+                    case 2:
+                        textBoxResultado.ForeColor = Color.Black;
+                        textBoxResultado.BackColor = Color.Yellow;
+                        break;
+                }
             }
         }
 
@@ -57,6 +73,7 @@ namespace calculadorav2
         {
             if (!isBlinking)
             {
+                BlinkTimer_Tick(0, null);
                 blinkTimer.Start();
                 isBlinking = true;
             }
@@ -67,7 +84,9 @@ namespace calculadorav2
             if (isBlinking)
             {
                 blinkTimer.Stop();
+                textBoxResultado.ForeColor = Color.Black;
                 textBoxResultado.BackColor = Color.LightGray;
+                textBoxResultado.TextAlign = HorizontalAlignment.Left;
                 isBlinking = false;
             }
         }
