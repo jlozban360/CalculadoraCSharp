@@ -54,7 +54,8 @@
             // textBoxResultado
             // 
             textBoxResultado.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            textBoxResultado.BackColor = SystemColors.ScrollBar;
+            textBoxResultado.BackColor = Color.LightGray;
+            textBoxResultado.BorderStyle = BorderStyle.FixedSingle;
             textBoxResultado.Cursor = Cursors.No;
             textBoxResultado.Font = new Font("Segoe UI", 20F, FontStyle.Bold);
             textBoxResultado.Location = new Point(35, 43);

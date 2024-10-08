@@ -9,40 +9,66 @@ namespace calculadorav2
 {
     public partial class Calculadora : Form
     {
+        //----------------------------------------------------------------------------------
+        // Inicializar Calculadora y valores generales
+        //----------------------------------------------------------------------------------
+
         private char[] symbolsPriorityArray = { '^', '√', '/', '*', '+', '-' };
         private bool errorShown = false;
-        private System.Windows.Forms.Timer blinkTimer; // Usando el espacio de nombres completo
-        private bool isBlinking = false; // Estado del parpadeo
 
         public Calculadora()
         {
             InitializeComponent();
-            InitializeBlinkTimer(); // Inicializar el Timer
+            InitializeBlinkTimer();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-        }
+        private void Form1_Load(object sender, EventArgs e) {}
+
+        //----------------------------------------------------------------------------------
+        // Blinking func (parpadeo)
+        //----------------------------------------------------------------------------------
+
+        private System.Windows.Forms.Timer blinkTimer;
+        private bool isBlinking = false;
+        private bool timeToChange = false;
 
         private void InitializeBlinkTimer()
         {
             blinkTimer = new System.Windows.Forms.Timer();
-            blinkTimer.Interval = 500; // Intervalo de parpadeo (en milisegundos)
+            blinkTimer.Interval = 500;
             blinkTimer.Tick += BlinkTimer_Tick;
         }
 
         private void BlinkTimer_Tick(object sender, EventArgs e)
         {
-            // Cambia el borde del TextBox entre rojo y transparente
-            if (textBoxResultado.BorderStyle == BorderStyle.FixedSingle)
+            if (!timeToChange)
             {
-                textBoxResultado.BorderStyle = BorderStyle.Fixed3D;
+                timeToChange = true;
                 textBoxResultado.BackColor = Color.Red;
             }
             else
             {
-                textBoxResultado.BorderStyle = BorderStyle.FixedSingle;
-                textBoxResultado.BackColor = Color.White;
+                timeToChange = false;
+                textBoxResultado.BackColor = Color.LightGray;
+            }
+        }
+
+        private void StartBlinking()
+        {
+            if (!isBlinking)
+            {
+                blinkTimer.Start();
+                isBlinking = true;
+            }
+        }
+
+        private void StopBlinking()
+        {
+            if (isBlinking)
+            {
+                blinkTimer.Stop();
+                textBoxResultado.BackColor = Color.LightGray;
+                isBlinking = false;
             }
         }
 
@@ -70,7 +96,7 @@ namespace calculadorav2
             }
 
             textBoxResultado.AppendText(input);
-            StopBlinking(); // Detener el parpadeo si se presiona un número
+            StopBlinking();
         }
 
         //----------------------------------------------------------------------------------
@@ -90,11 +116,10 @@ namespace calculadorav2
                 errorShown = false;
             }
 
-            // Permitir ingresar la raíz cuadrada incluso si no hay un número antes
             if (textBoxResultado.Text.Length > 0 || operatorSymbol == '-' || operatorSymbol == '√')
                 replaceWith(operatorSymbol);
 
-            StopBlinking(); // Detener el parpadeo si se presiona un operador
+            StopBlinking();
         }
 
         //----------------------------------------------------------------------------------
@@ -111,7 +136,7 @@ namespace calculadorav2
         private void buttonC_Click(object sender, EventArgs e)
         {
             if (textBoxResultado.Text.Length > 0) deleteLastOperatorOrNumber();
-            StopBlinking(); // Detener el parpadeo
+            StopBlinking();
         }
 
         //----------------------------------------------------------------------------------
@@ -121,7 +146,7 @@ namespace calculadorav2
         private void buttonCE_Click(object sender, EventArgs e)
         {
             textBoxResultado.Clear();
-            StopBlinking(); // Detener el parpadeo
+            StopBlinking();
         }
 
         //----------------------------------------------------------------------------------
@@ -139,7 +164,7 @@ namespace calculadorav2
             {
                 string text = textBoxResultado.Text;
                 textBoxResultado.Text = text.Remove(text.Length - 1, 1);
-                StopBlinking(); // Detener el parpadeo
+                StopBlinking();
             }
         }
 
@@ -164,10 +189,9 @@ namespace calculadorav2
                     textBoxResultado.Text = text.Remove(start + 1);
                 }
                 else
-                {
                     textBoxResultado.Text = text.Remove(lastIndex, 1);
-                }
-                StopBlinking(); // Detener el parpadeo
+
+                StopBlinking();
             }
         }
 
@@ -181,11 +205,9 @@ namespace calculadorav2
         {
             if (textBoxResultado.Text.Length == 0)
             {
-                // Si no hay texto y se ingresa una raíz cuadrada, se permite
                 if (character == '√')
-                {
                     textBoxResultado.Text += character;
-                }
+
                 return;
             }
 
@@ -207,9 +229,7 @@ namespace calculadorav2
                 textBoxResultado.Text = new string(charArray);
             }
             else
-            {
                 textBoxResultado.Text += character;
-            }
         }
 
         //----------------------------------------------------------------------------------
@@ -232,7 +252,6 @@ namespace calculadorav2
         {
             try
             {
-                // Elimina espacios
                 calcStr = calcStr.Replace(" ", "");
 
                 if (string.IsNullOrEmpty(calcStr) || !IsValidExpression(calcStr))
@@ -245,7 +264,6 @@ namespace calculadorav2
 
                 string tempNumber = "";
 
-                // Divide la expresión en números y operadores
                 foreach (char c in calcStr)
                 {
                     if (char.IsDigit(c) || c == '.')
@@ -272,35 +290,28 @@ namespace calculadorav2
                     numbers.Add(double.Parse(tempNumber));
                 }
 
-                // Primero manejamos las raíces y potencias
                 for (int i = 0; i < operators.Count; i++)
                 {
                     if (operators[i] == '√')
                     {
-                        // Raíz cuadrada del número actual
                         double result = Math.Sqrt(numbers[i]);
                         numbers[i] = result;
 
-                        // Eliminar el operador raíz
                         operators.RemoveAt(i);
                         i--;
                     }
                     else if (operators[i] == '^')
                     {
-                        // Potencia de dos números consecutivos
                         double result = Math.Pow(numbers[i], numbers[i + 1]);
                         numbers[i] = result;
 
-                        // Eliminar el número siguiente (ya utilizado)
                         numbers.RemoveAt(i + 1);
 
-                        // Eliminar el operador potencia
                         operators.RemoveAt(i);
                         i--;
                     }
                 }
 
-                // Luego manejamos multiplicaciones y divisiones
                 for (int i = 0; i < operators.Count; i++)
                 {
                     if (operators[i] == '*' || operators[i] == '/')
@@ -321,17 +332,12 @@ namespace calculadorav2
                         }
 
                         numbers[i] = result;
-
-                        // Eliminar el número siguiente
                         numbers.RemoveAt(i + 1);
-
-                        // Eliminar el operador
                         operators.RemoveAt(i);
                         i--;
                     }
                 }
 
-                // Finalmente sumas y restas
                 while (operators.Count > 0)
                 {
                     double result = 0;
@@ -350,9 +356,8 @@ namespace calculadorav2
                     operators.RemoveAt(0);
                 }
 
-                // Mostrar el resultado final
                 textBoxResultado.Text = numbers[0].ToString();
-                StartBlinking(); // Iniciar parpadeo al mostrar el resultado
+                StartBlinking();
             }
             catch (DivideByZeroException)
             {
@@ -366,58 +371,31 @@ namespace calculadorav2
             }
         }
 
-        private void StartBlinking()
-        {
-            if (!isBlinking)
-            {
-                blinkTimer.Start();
-                isBlinking = true;
-            }
-        }
-
-        private void StopBlinking()
-        {
-            if (isBlinking)
-            {
-                blinkTimer.Stop();
-                textBoxResultado.BorderStyle = BorderStyle.FixedSingle; // Restablecer estilo de borde
-                textBoxResultado.BackColor = Color.White; // Restablecer color de fondo
-                isBlinking = false;
-            }
-        }
+        //--------------------------------------------------------------------------------
 
         private bool IsValidExpression(string expression)
         {
-            // Asegúrate de que la expresión no empiece con un operador que no sea negativo o raíz cuadrada
             if (symbolsPriorityArray.Contains(expression[0]) && expression[0] != '-' && expression[0] != '√')
                 return false;
 
-            // Verifica si hay caracteres inválidos
             foreach (char c in expression)
             {
                 if (!char.IsDigit(c) && !symbolsPriorityArray.Contains(c) && c != '.')
                     return false;
             }
 
-            // Verifica que no haya dos operadores seguidos, excepto el signo menos al inicio o después de un operador
             for (int i = 1; i < expression.Length; i++)
             {
                 if (symbolsPriorityArray.Contains(expression[i]) && symbolsPriorityArray.Contains(expression[i - 1]) && expression[i - 1] != '-' && expression[i] != '√')
-                {
                     return false;
-                }
             }
 
-            // Verifica que si hay una raíz, haya un número después
             for (int i = 0; i < expression.Length; i++)
             {
                 if (expression[i] == '√')
                 {
-                    // Permitir √ al inicio o seguido de un número o decimal
                     if (i + 1 >= expression.Length || (!char.IsDigit(expression[i + 1]) && expression[i + 1] != '.'))
-                    {
                         return false;
-                    }
                 }
             }
 
