@@ -31,6 +31,7 @@ namespace calculadorav2
         private System.Windows.Forms.Timer blinkTimer;
         private bool isBlinking = false;
         private bool timeToChange = false;
+        private int lastRandomValue = 0;
 
         private void InitializeBlinkTimer()
         {
@@ -41,31 +42,30 @@ namespace calculadorav2
 
         private void BlinkTimer_Tick(object sender, EventArgs e)
         {
-            if (!timeToChange)
+            int randomValue;
+
+            do
             {
-                timeToChange = true;
-                textBoxResultado.TextAlign = HorizontalAlignment.Center;
-                textBoxResultado.ForeColor = Color.White;
-                textBoxResultado.BackColor = Color.Blue;
+                randomValue = Random.Shared.Next(1, 4);
             }
-            else
+            while (randomValue == lastRandomValue);
+
+            lastRandomValue = randomValue;
+
+            switch (randomValue)
             {
-                timeToChange = false;
-
-                Random rand = new Random();
-                int randomValue = rand.Next(1, 3);
-
-                switch (randomValue)
-                {
-                    case 1:
-                        textBoxResultado.ForeColor = Color.Gold;
-                        textBoxResultado.BackColor = Color.Green;
-                        break; 
-                    case 2:
-                        textBoxResultado.ForeColor = Color.Black;
-                        textBoxResultado.BackColor = Color.Yellow;
-                        break;
-                }
+                case 1:
+                    textBoxResultado.ForeColor = Color.Gold;
+                    textBoxResultado.BackColor = Color.Green;
+                    break;
+                case 2:
+                    textBoxResultado.ForeColor = Color.Black;
+                    textBoxResultado.BackColor = Color.Yellow;
+                    break;
+                case 3:
+                    textBoxResultado.ForeColor = Color.White;
+                    textBoxResultado.BackColor = Color.Blue;
+                    break;
             }
         }
 
@@ -73,6 +73,7 @@ namespace calculadorav2
         {
             if (!isBlinking)
             {
+                textBoxResultado.TextAlign = HorizontalAlignment.Center;
                 BlinkTimer_Tick(0, null);
                 blinkTimer.Start();
                 isBlinking = true;
